@@ -2,48 +2,36 @@ import streamlit as st
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 
-st.set_page_config(page_title="DP Union - Gestão", layout="wide")
+st.set_page_config(layout="wide")
+st.title("🛡️ DP Union - Controle de Parque")
 
-st.title("🛡️ DP Union - Controle de Parque Instalado")
-
-# Conexão com o Google Sheets
-# IMPORTANTE: Coloque o URL da sua planilha abaixo
+# URL da sua planilha (garanta que o link esteja compartilhado como Editor)
 URL_PLANILHA = "https://docs.google.com/spreadsheets/d/1HLnOkdOImSdLC0-K1_cWDw0hkbPSFxdu2QPQMmcn3zs/edit?usp=sharing" 
 
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# Carrega dados com tratamento de cache para não dar erro
-@st.cache_data(ttl=60)
-def load_data():
-    return conn.read(spreadsheet=URL_PLANILHA, usecols=[0,1,2,3,4,5,6,7,8,9,10,11,12,13])
-
 try:
-    df = load_data()
+    # 1. Leitura forçando tudo como texto para evitar erro de tipo
+    df = conn.read(spreadsheet=URL_PLANILHA, dtype=str)
     
-    # Garantir que todas as colunas tenham nomes de string
-    df.columns = df.columns.astype(str)
+    # 2. Limpeza básica: remove colunas totalmente vazias (se houver)
+    df = df.dropna(how='all', axis=1)
 
     st.subheader("Base de Equipamentos")
     
-    # Editor de dados robusto
+    # 3. Editor de dados com controle de sessão
     df_editado = st.data_editor(
         df, 
         use_container_width=True, 
-        num_rows="dynamic",
-        key="data_editor"
+        num_rows="dynamic"
     )
 
-    if st.button("💾 Sincronizar com o Google Sheets"):
+    if st.button("💾 Salvar Alterações na Nuvem"):
+        # 4. Gravação na planilha
         conn.update(spreadsheet=URL_PLANILHA, data=df_editado)
-        st.success("Dados salvos na nuvem com sucesso!")
+        st.success("Dados salvos com sucesso!")
         st.rerun()
 
-st.markdown("""
-<style>
-    .stApp { padding: 20px; }
-    .css-1544g2n { padding-top: 1rem; }
-</style>
-""", unsafe_allow_html=True)
-
 except Exception as e:
-    st.error(f"Erro ao carregar a planilha. Verifique o link e as permissões. Detalhe: {e}")
+    st.error(f"Erro de conexão: {e}")
+    st.write("Dica: Verifique se o link da planilha está correto e se o compartilhamento está como 'Editor'.")
