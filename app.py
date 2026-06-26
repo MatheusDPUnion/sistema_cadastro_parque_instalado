@@ -19,7 +19,7 @@ st.markdown("---")
 
 # CONEXÃO COM GOOGLE SHEETS
 # Substitua o link abaixo pelo link da sua planilha do Google
-URL_PLANILHA = "COLE_AQUI_O_LINK_DA_SUA_PLANILHA_GOOGLE"
+URL_PLANILHA = "https://docs.google.com/spreadsheets/d/1HLnOkdOImSdLC0-K1_cWDw0hkbPSFxdu2QPQMmcn3zs/edit?usp=sharing"
 
 conn = st.connection("gsheets", type=GSheetsConnection)
 
