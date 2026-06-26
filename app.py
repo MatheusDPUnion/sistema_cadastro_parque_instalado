@@ -38,5 +38,12 @@ try:
         st.success("Dados salvos na nuvem com sucesso!")
         st.rerun()
 
+st.markdown("""
+<style>
+    .stApp { padding: 20px; }
+    .css-1544g2n { padding-top: 1rem; }
+</style>
+""", unsafe_allow_html=True)
+
 except Exception as e:
     st.error(f"Erro ao carregar a planilha. Verifique o link e as permissões. Detalhe: {e}")
